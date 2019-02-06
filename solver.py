@@ -10,7 +10,7 @@ import sys
 class Puzzle:
 
     def __init__(self, grid):
-        self.grid = grid
+        self.grid = [row[:] for row in grid]
 
     def show(self):
         for line in self.grid:
@@ -23,13 +23,30 @@ class Puzzle:
         return self.rowsValid() and self.columnsValid() and self.boxesValid()
 
     def rowsValid(self):
+        for row in self.grid:
+            if not checkArr(row): 
+                return False
         return True
 
     def columnsValid(self):
+        for i in range(9):
+            arr = [x[i] for x in self.grid]
+            if not checkArr(arr): 
+                return False
         return True
 
     def boxesValid(self):
+        boxes = [[[], [], []], [[], [], []], [[], [], []]]
+        for y in range(9):
+            for x in range(9):
+                # print("grid[" + str(y) + "][" + str(x) + "] goes in box [" + str(int(y/3)) + "][" + str(int(x/3)) + "]")
+                boxes[int(y/3)][int(x/3)].append(self.grid[y][x])
+        for row in boxes:
+            for arr in row:
+                if not checkArr(arr): 
+                    return False
         return True
+
 
     def setSquare(self, x, y, val):
         self.grid[x][y] = val
@@ -41,6 +58,17 @@ class Puzzle:
                     return False
         return True
 
+def anydup(arr):
+  seen = set()
+  for x in arr:
+    if x != 0 and x in seen: return True
+    seen.add(x)
+  return False
+
+def checkArr(arr):
+    for i in range(1, 10):
+        return not anydup(arr)
+
 
 def getFirstBlank(puz):
     for y, line in enumerate(puz.grid):
@@ -49,29 +77,38 @@ def getFirstBlank(puz):
                 return [x, y]
 
 def solve(puz):
-    if puz.isFull():
-        puz.show()
-        return 1
-    blank = getFirstBlank(puz)
+    full = puz.isFull()
+    valid = puz.isValid()
 
+    if not valid: return 0
+    else:
+        if full:
+            puz.show() 
+            return 1
+
+    blank = getFirstBlank(puz)
     newPuz = Puzzle(puz.grid)
     for i in range(1, 10):
         newPuz.setSquare(blank[1], blank[0], i)
-        if solve(newPuz) == 1: return 1
+        # print(blank)
+        # newPuz.show()
+        val = solve(newPuz)
+        if val == 1: return 1
+    # no possibilities worked for this cell, so return 0
 
 
 def main():
     try:
         file = open(sys.argv[1], 'r').readlines()
     except IndexError:
-        print("Invalid arguments. Command should be in the following format:\n$ python3 solver.py <input.txt>") 
+        print("Invalid arguments. Command should be in the following format:\n$ python3 solver.py <input.txt>")
+        quit()
 
     grid = []
     for line in file:
         grid.append([int(x) for x in list(line.rstrip())])
     
     puz = Puzzle(grid)
-    puz.show()
     solve(puz)
 
 
