@@ -7,15 +7,29 @@
 
 import sys
 
+class Cell:
+
+    def __init__(self, x, y, val, posMoves):
+        self.x = x
+        self.y = y
+        self.val = val
+        self.posMoves = posMoves
+
 class Puzzle:
 
     def __init__(self, grid):
-        self.grid = [row[:] for row in grid]
+        newGrid = []
+        for y, row in enumerate(grid):
+            currRow = []
+            for x, square in enumerate(row):
+                currRow.append(Cell(x, y, square.val, []))
+            newGrid.append(currRow)
+        self.grid = newGrid
 
     def show(self):
         for line in self.grid:
             for digit in line:
-                print("|" + str(digit), end = '')
+                print("|" + str(digit.val), end = '')
             print("|")
         print()
 
@@ -24,14 +38,14 @@ class Puzzle:
 
     def rowsValid(self):
         for row in self.grid:
-            if not checkArr(row): 
+            if not checkArr([x.val for x in row]): 
                 return False
         return True
 
     def columnsValid(self):
         for i in range(9):
             arr = [x[i] for x in self.grid]
-            if not checkArr(arr): 
+            if not checkArr([x.val for x in arr]): 
                 return False
         return True
 
@@ -43,18 +57,18 @@ class Puzzle:
                 boxes[int(y/3)][int(x/3)].append(self.grid[y][x])
         for row in boxes:
             for arr in row:
-                if not checkArr(arr): 
+                if not checkArr([x.val for x in arr]): 
                     return False
         return True
 
 
     def setSquare(self, x, y, val):
-        self.grid[x][y] = val
+        self.grid[x][y] = Cell(x, y, val, [])
 
     def isFull(self):
         for row in self.grid:
             for digit in row:
-                if digit == 0:
+                if digit.val == 0:
                     return False
         return True
 
@@ -73,14 +87,14 @@ def checkArr(arr):
 def getFirstBlank(puz):
     for y, line in enumerate(puz.grid):
         for x, digit in enumerate(line):
-            if digit == 0:
-                return [x, y]
+            if digit.val == 0: return [digit.x, digit.y]
 
 def solve(puz):
     full = puz.isFull()
     valid = puz.isValid()
 
-    if not valid: return 0
+    if not valid: 
+        return 0
     else:
         if full:
             puz.show() 
@@ -105,10 +119,15 @@ def main():
         quit()
 
     grid = []
-    for line in file:
-        grid.append([int(x) for x in list(line.rstrip())])
+    for y, line in enumerate(file):
+        row = [int(x) for x in list(line.rstrip())]
+        newRow = []
+        for x, square in enumerate(row):
+            newRow.append(Cell(x, y, square, []))
+        grid.append(newRow)
     
     puz = Puzzle(grid)
+    # puz.show()
     solve(puz)
 
 
