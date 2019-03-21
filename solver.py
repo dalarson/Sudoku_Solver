@@ -15,6 +15,9 @@ class Cell:
         self.val = val
         self.posMoves = posMoves
 
+    def setPosMoves(self, moves):
+        self.posMoves = moves
+
 class Puzzle:
 
     def __init__(self, grid):
@@ -72,6 +75,7 @@ class Puzzle:
                     return False
         return True
 
+
 def anydup(arr):
   seen = set()
   for x in arr:
@@ -128,6 +132,7 @@ def main():
     
     puz = Puzzle(grid)
     # puz.show()
+    # puz.populatePossibleMoves()
     solve(puz)
 
 
